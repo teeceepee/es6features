@@ -14,8 +14,8 @@ ES6 包括以下新特性：
 - [default + rest + spread](#default--rest--spread) done
 - [let + const](#let--const) done
 - [iterators + for..of](#iterators--forof) done
-- [generators](#generators)
-- [unicode](#unicode)
+- [generators](#generators) done
+- [unicode](#unicode) done
 - [modules](#modules)
 - [module loaders](#module-loaders)
 - [map + set + weakmap + weakset](#map--set--weakmap--weakset)
@@ -223,5 +223,60 @@ for (var n of fibonacci) {
   if (n > 1000)
     break;
   console.log(n);
+}
+```
+
+### 生成器
+生成器通过 `function*` 和 `yield` 简化迭代器相关操作(TODO)。用 function* 声明的函数返回一个生成器实例。生成器是迭代器的子类型，包括额外的 `next` 和 `throw` 方法。这使值流回生成器成为可能，因此 `yield` 是一个可以返回值的表达式。
+
+```JavaScript
+var fibonacci = {
+  [Symbol.iterator]: function*() {
+    var pre = 0, cur = 1;
+    for (;;) {
+      var temp = pre;
+      pre = cur;
+      cur += temp;
+      yield cur;
+    }
+  }
+}
+
+for (var n of fibonacci) {
+  // truncate the sequence at 1000
+  if (n > 1000)
+    break;
+  console.log(n);
+}
+```
+
+生成器的对外接口是（使用 TypeScript 的类型语法描述）：
+
+```TypeScript
+interface Generator extends Iterator {
+    next(value?: any): IteratorResult;
+    throw(exception: any);
+}
+```
+
+### Unicode
+增加向前兼容的新特性来完整支持 Unicode，包括新的 Unicode 字符串字面量，正则表达式中新的处理代码点的 `u` 模式，以及新的处理包含 21 位代码点字符串的 API。这些新特性支持使用 JavaScript 构建全球化的应用。
+
+```JavaScript
+// same as ES5.1
+"𠮷".length == 2
+
+// new RegExp behaviour, opt-in ‘u’
+"𠮷".match(/./u)[0].length == 2
+
+// new form
+"\u{20BB7}"=="𠮷"=="\uD842\uDFB7"
+
+// new String ops
+"𠮷".codePointAt(0) == 0x20BB7
+
+// for-of iterates code points
+for(var c of "𠮷") {
+  console.log(c);
 }
 ```
